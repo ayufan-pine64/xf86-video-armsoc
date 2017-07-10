@@ -1,3 +1,9 @@
+xf86-video-armsoc (1.4.0-0ubuntu2+0sunxi6) xenial; urgency=medium
+
+  * Automated release
+
+ -- Ubuntu Developers <ubuntu-devel@lists.ubuntu.com>  Mon, 10 Jul 2017 21:18:07 +0200
+
 xf86-video-armsoc (1.4.0-0ubuntu2+0sunxi5) xenial; urgency=medium
 
   * Run quilt before autogen
