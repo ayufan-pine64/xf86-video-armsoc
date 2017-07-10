@@ -737,6 +737,7 @@ static struct drmmode_interface *get_drmmode_implementation(int drm_fd)
 		&pl111_interface,
 		&kirin_interface,
 		&sunxi_interface,
+		&sti_interface,
 	};
 	int i;
 
@@ -748,8 +749,6 @@ static struct drmmode_interface *get_drmmode_implementation(int drm_fd)
 		struct drmmode_interface *iface = ifaces[i];
 		if (strcmp(version->name, iface->driver_name) == 0) {
 			ret = iface;
-	            xf86Msg(X_INFO, "######%s\n",iface->driver_name);
-
 			break;
 		}
 	}
@@ -1174,6 +1173,7 @@ ARMSOCScreenInit(SCREEN_INIT_ARGS_DECL)
 	} else {
 		pARMSOC->lockFD = -1;
 	}
+
 	TRACE_EXIT();
 	return TRUE;
 
@@ -1252,6 +1252,16 @@ ARMSOCCloseScreen(CLOSE_SCREEN_ARGS_DECL)
 
 	drmmode_screen_fini(pScrn);
 	drmmode_cursor_fini(pScreen);
+
+	/* pScreen->devPrivate holds the root pixmap created around our bo by miCreateResources which is installed
+	 * by fbScreenInit() when called from ARMSOCScreenInit().
+	 * This pixmap should be destroyed in miScreenClose() but this isn't wrapped by fbScreenInit() so to prevent a leak
+	 * we do it here, before calling the CloseScreen chain which would just free pScreen->devPrivate in fbCloseScreen()
+	 */
+	if (pScreen->devPrivate) {
+		(void) (*pScreen->DestroyPixmap)(pScreen->devPrivate);
+		pScreen->devPrivate = NULL;
+	}
 
 	unwrap(pARMSOC, pScreen, CloseScreen);
 	unwrap(pARMSOC, pScreen, BlockHandler);

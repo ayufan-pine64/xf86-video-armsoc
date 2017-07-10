@@ -55,7 +55,7 @@ PrepareSolidFail(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fill_colour)
 }
 int sunxi_rotate_copy(struct armsoc_bo *src_bo, struct armsoc_bo *dst_bo);
 static Bool
-sunxiPrepareCopy(PixmapPtr pSrc, PixmapPtr pDst, int xdir, int ydir,
+PrepareCopyFail(PixmapPtr pSrc, PixmapPtr pDst, int xdir, int ydir,
 		int alu, Pixel planemask)
 {
     struct ARMSOCPixmapPrivRec *priv_src = exaGetPixmapDriverPrivate(pSrc);
@@ -79,6 +79,8 @@ sunxiPrepareCopy(PixmapPtr pSrc, PixmapPtr pDst, int xdir, int ydir,
     }
 	return FALSE;
 }
+
+/*
 static void sunxiCopy (PixmapPtr pDstPixmap,
                   int srcX,
                   int srcY, int dstX, int dstY, int width, int height)
@@ -89,6 +91,7 @@ static void sunxiDoneCopy (PixmapPtr pDstPixmap)
 {
     return ;
 }
+*/
 
 static Bool
 CheckCompositeFail(int op, PicturePtr pSrcPicture, PicturePtr pMaskPicture,
@@ -175,9 +178,9 @@ InitNullEXA(ScreenPtr pScreen, ScrnInfoPtr pScrn, int fd)
 	exa->PixmapIsOffscreen = ARMSOCPixmapIsOffscreen;
 
 	/* Always fallback for software operations */
-	exa->PrepareCopy = sunxiPrepareCopy;
-    exa->Copy = sunxiCopy;
-    exa->DoneCopy = sunxiDoneCopy;
+	exa->PrepareCopy = PrepareCopyFail;
+//    exa->Copy = sunxiCopy;
+ //   exa->DoneCopy = sunxiDoneCopy;
 	exa->PrepareSolid = PrepareSolidFail;
 	exa->CheckComposite = CheckCompositeFail;
 	exa->PrepareComposite = PrepareCompositeFail;

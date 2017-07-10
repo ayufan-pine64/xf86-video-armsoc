@@ -67,7 +67,8 @@ struct armsoc_bo {
 	 */
 	uint32_t original_size;
 	uint32_t name;
-enum armsoc_buf_type buf_type;
+
+	enum armsoc_buf_type buf_type;
 };
 
 /* device related functions:
@@ -171,7 +172,8 @@ struct armsoc_bo *armsoc_bo_new_with_dim(struct armsoc_device *dev,
 	new_buf->refcnt = 1;
 	new_buf->dmabuf = -1;
 	new_buf->name = 0;
-new_buf->buf_type = buf_type;
+	new_buf->buf_type = buf_type;
+
 	return new_buf;
 }
 
@@ -187,6 +189,7 @@ static void armsoc_bo_del(struct armsoc_bo *bo)
 
 	assert(bo->refcnt == 0);
 	assert(bo->dmabuf < 0);
+
 	if (bo->map_addr) {
 		/* always map/unmap the full buffer for consistency */
 		munmap(bo->map_addr, bo->original_size);
@@ -342,12 +345,12 @@ int armsoc_bo_cpu_prep(struct armsoc_bo *bo, enum armsoc_gem_op op)
 	}
 	return ret;
 }
+
 void sunxi_sync_gem(struct armsoc_bo *src_bo);
+
 int armsoc_bo_cpu_fini(struct armsoc_bo *bo, enum armsoc_gem_op op)
 {
 	assert(bo->refcnt > 0);
-//if(bo->buf_type == ARMSOC_BO_SCANOUT)
-  //  sunxi_sync_gem(bo);
 	return msync(bo->map_addr, bo->size, MS_SYNC | MS_INVALIDATE);
 }
 
