@@ -708,7 +708,7 @@ drmmode_cursor_init_plane_id(ScreenPtr pScreen, int plane_id)
 }
 
 static Bool
-drmmode_cursor_init_plane(ScreenPtr pScreen, int plane_type)
+drmmode_cursor_init_plane(ScreenPtr pScreen, int plane_type, int channel_id)
 {
 	ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
 	xf86CrtcConfigPtr config = XF86_CRTC_CONFIG_PTR(pScrn);
@@ -767,26 +767,22 @@ drmmode_cursor_init_plane(ScreenPtr pScreen, int plane_type)
 		for (j = 0; j < props->count_props; j++) {
 			drmModePropertyPtr this_prop = drmModeGetProperty(drmmode->fd, props->props[j]);
  			int is_type = !strcmp(this_prop->name, "type");
+ 			int is_channel_id = !strcmp(this_prop->name, "channel_id");
 			drmModeFreeProperty(this_prop);
 
-			if (!is_type) {
-				continue;
-			}
+			DEBUG_MSG("testing plane(%d) prop(%s) possible_crcts(%d) type(%d)", plane_id, this_prop->name, plane->possible_crtcs, (int)props->prop_values[j]);
 
-			DEBUG_MSG("testing plane(%d) possible_crcts(%d) type(%d)", plane_id, plane->possible_crtcs, (int)props->prop_values[j]);
-
-			if (props->prop_values[j] != plane_type) {
-				continue;
+			if ((is_type && props->prop_values[j] == plane_type) || 
+				(is_channel_id && props->prop_values[j] == channel_id)) {
+				if (drmmode_cursor_init_plane_id(pScreen, plane_id)) {
+					drmModeFreeObjectProperties(props);
+					drmModeFreePlane(plane);
+					drmModeFreePlaneResources(plane_resources);
+					return TRUE;
+				}
+				INFO_MSG("HW cursor failed to initalize\n");
+				break;
 			}
-		
-			if (drmmode_cursor_init_plane_id(pScreen, plane_id)) {
-				drmModeFreeObjectProperties(props);
-				drmModeFreePlane(plane);
-				drmModeFreePlaneResources(plane_resources);
-				return TRUE;
-			}
-			DEBUG_MSG("HW cursor failed to initalize\n");
-			break;
 		}
 
 		drmModeFreeObjectProperties(props);
@@ -857,7 +853,7 @@ drmmode_cursor_init_standard(ScreenPtr pScreen)
 	return TRUE;
 }
 
-Bool drmmode_cursor_init(ScreenPtr pScreen, int plane_type)
+Bool drmmode_cursor_init(ScreenPtr pScreen, int plane_type, int channel_id)
 {
 	ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
 	struct ARMSOCRec *pARMSOC = ARMSOCPTR(pScrn);
@@ -866,7 +862,7 @@ Bool drmmode_cursor_init(ScreenPtr pScreen, int plane_type)
 
 	switch (pARMSOC->drmmode_interface->cursor_api) {
 	case HWCURSOR_API_PLANE:
-		return drmmode_cursor_init_plane(pScreen, plane_type);
+		return drmmode_cursor_init_plane(pScreen, plane_type, channel_id);
 	case HWCURSOR_API_STANDARD:
 		return drmmode_cursor_init_standard(pScreen);
 	case HWCURSOR_API_NONE:

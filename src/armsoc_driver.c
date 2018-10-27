@@ -111,6 +111,7 @@ enum {
 	OPTION_INIT_FROM_FBDEV,
 	OPTION_UMP_LOCK,
 	OPTION_CURSOR_PLANE_TYPE,
+	OPTION_CURSOR_CHANNEL_ID
 };
 
 /** Supported options. */
@@ -124,6 +125,7 @@ static const OptionInfoRec ARMSOCOptions[] = {
 	{ OPTION_INIT_FROM_FBDEV, "InitFromFBDev", OPTV_STRING, {0}, FALSE },
 	{ OPTION_UMP_LOCK,   "UMP_LOCK",   OPTV_BOOLEAN, {0}, FALSE },
 	{ OPTION_CURSOR_PLANE_TYPE, "CursorPlaneType", OPTV_INTEGER, {DRM_PLANE_TYPE_OVERLAY}, FALSE },
+	{ OPTION_CURSOR_CHANNEL_ID, "CursorChannelID", OPTV_INTEGER, {-1}, FALSE },
 	{ -1,                NULL,         OPTV_NONE,    {0}, FALSE }
 };
 
@@ -326,9 +328,6 @@ ARMSOCOpenDRM(ScrnInfoPtr pScrn)
 	err = drmSetClientCap(pARMSOC->drmFD, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
 	if (err < 0) {
 		ERROR_MSG("Cannot set the DRM to return all planes.");
-		drmClose(pARMSOC->drmFD);
-		pARMSOC->drmFD = -1;
-		return FALSE;
 	}
 
 	return TRUE;
@@ -998,6 +997,7 @@ ARMSOCScreenInit(SCREEN_INIT_ARGS_DECL)
 	VisualPtr visual;
 	xf86CrtcConfigPtr xf86_config;
 	int cursorPlaneType = 0;
+	int cursorChannelId = 0;
 	int j;
 	const char *fbdev;
 	int depth;
@@ -1139,8 +1139,13 @@ ARMSOCScreenInit(SCREEN_INIT_ARGS_DECL)
 		cursorPlaneType = DRM_PLANE_TYPE_OVERLAY;
 	}
 
+	if (!xf86GetOptValInteger(pARMSOC->pOptionInfo, OPTION_CURSOR_CHANNEL_ID,
+			&cursorChannelId)) {
+		cursorChannelId = -1;
+	}
+
 	/* ignore failures here as we will fall back to software cursor */
-	(void)drmmode_cursor_init(pScreen, cursorPlaneType);
+	(void)drmmode_cursor_init(pScreen, cursorPlaneType, cursorChannelId);
 
 	/* TODO: MIDEGL-1458: Is this the right place for this?
 	 * The Intel i830 driver says:
