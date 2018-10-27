@@ -1,3 +1,15 @@
+xf86-video-armsoc (1.4.1-0ubuntu2+0sunxi6bionic3) bionic; urgency=medium
+
+  * Do not install sunxi.conf
+
+ -- Kamil Trzciński <ayufan@ayufan.eu>  Wed, 24 Oct 2018 20:58:50 +0200
+
+xf86-video-armsoc (1.4.1-0ubuntu2+0sunxi6bionic2) bionic; urgency=medium
+
+  * Upgrade to bionic
+
+ -- Kamil Trzciński <ayufan@ayufan.eu>  Wed, 24 Oct 2018 15:21:57 +0200
+
 xf86-video-armsoc (1.4.0-0ubuntu2+0sunxi6) xenial; urgency=medium
 
   * Automated release
