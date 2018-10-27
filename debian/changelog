@@ -1,3 +1,9 @@
+xf86-video-armsoc (1.4.1-0ubuntu2+0sunxi7~bionic1) bionic; urgency=medium
+
+  * Add support for `channel_id` on sunxi for bionic
+
+ -- Kamil Trzciński <ayufan@ayufan.eu>  Sat, 27 Oct 2018 22:09:45 +0200
+
 xf86-video-armsoc (1.4.1-0ubuntu2+0sunxi6bionic3) bionic; urgency=medium
 
   * Do not install sunxi.conf
