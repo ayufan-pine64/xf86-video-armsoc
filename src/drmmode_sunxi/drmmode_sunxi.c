@@ -159,15 +159,16 @@ static int create_custom_gem(int fd, struct armsoc_create_gem *create_gem)
 
 	assert((create_gem->buf_type == ARMSOC_BO_SCANOUT) || (create_gem->buf_type == ARMSOC_BO_NON_SCANOUT));
 
-	if (create_gem->buf_type == ARMSOC_BO_SCANOUT)
+	if (create_gem->buf_type == ARMSOC_BO_SCANOUT) {
 		create_sunxi.flags = SUNXI_BO_CONTIG|SUNXI_BO_WC;
+	}
 
-		/* Contiguous allocations are not supported in some sunxi drm versions.
-		* When they are supported all allocations are effectively contiguous
-		* anyway, so for simplicity we always request non contiguous buffers.
-		*/
+	/* Contiguous allocations are not supported in some sunxi drm versions.
+	* When they are supported all allocations are effectively contiguous
+	* anyway, so for simplicity we always request non contiguous buffers.
+	*/
 
-		ret = drmIoctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create_sunxi);
+	ret = drmIoctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create_sunxi);
 
 	if (ret)
 		return ret;
