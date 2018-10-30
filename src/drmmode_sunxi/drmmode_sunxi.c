@@ -154,13 +154,14 @@ static int create_custom_gem(int fd, struct armsoc_create_gem *create_gem)
 	create_sunxi.width = create_gem->width;
 	create_sunxi.height = create_gem->height;
 	create_sunxi.bpp = create_gem->bpp;
-	create_sunxi.flags = SUNXI_BO_CONTIG|SUNXI_BO_CACHABLE;
 	//xf86Msg(X_INFO, "######flags:%x\n",create_sunxi.flags);
 
 	assert((create_gem->buf_type == ARMSOC_BO_SCANOUT) || (create_gem->buf_type == ARMSOC_BO_NON_SCANOUT));
 
 	if (create_gem->buf_type == ARMSOC_BO_SCANOUT) {
 		create_sunxi.flags = SUNXI_BO_CONTIG|SUNXI_BO_WC;
+	} else {
+		create_sunxi.flags = SUNXI_BO_NONCONTIG|SUNXI_BO_CACHABLE;
 	}
 
 	/* Contiguous allocations are not supported in some sunxi drm versions.
